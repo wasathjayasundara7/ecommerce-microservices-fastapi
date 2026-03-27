@@ -1,0 +1,89 @@
+# ── Virtual Environment ───────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Python cache ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── SQLite Databases (auto-generated at runtime) ──────────────
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# ── Environment variables / secrets ──────────────────────────
+.env
+.env.*
+*.env
+
+# ── IDE and editor files ──────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+*~
+
+# ── OS generated files ────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+*.out
+
+# ── Distribution / packaging ─────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+MANIFEST
+
+# ── Unit test / coverage ──────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ── Jupyter notebooks ─────────────────────────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ── mypy / ruff type/lint caches ──────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# ── FastAPI / Uvicorn runtime ─────────────────────────────────
+*.pid
+instance/
+
+# ── pyright / pylance ─────────────────────────────────────────
+pyrightconfig.json
