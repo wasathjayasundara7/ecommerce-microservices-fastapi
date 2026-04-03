@@ -20,7 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 ADMIN_SECRET = "admin-secret-2026"
 
-# ── Helper: get current user from JWT ────────────────────────
+#Helper: get current user from JWT
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
@@ -39,7 +39,7 @@ def get_current_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-# ── Helper: admin only ────────────────────────────────────────
+#Helper: admin only
 def require_admin(current_user: models.UserTable = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(
@@ -48,7 +48,7 @@ def require_admin(current_user: models.UserTable = Depends(get_current_user)):
         )
     return current_user
 
-# ── Routes ────────────────────────────────────────────────────
+#Routes
 @app.get("/", tags=["Health"])
 def health_check():
     return {"service": "User Service", "status": "running", "port": 8001}
@@ -117,7 +117,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     })
     return {"access_token": token, "token_type": "bearer"}
 
-# ── Customer routes ───────────────────────────────────────────
+#Customer routes
 # @app.get("/users/me", response_model=UserResponse, tags=["Customer"])
 # def get_me(current_user: models.UserTable = Depends(get_current_user)):
 #     if current_user.role == "admin":
@@ -151,7 +151,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 #     db.refresh(current_user)
 #     return current_user
 
-# ── Admin routes ──────────────────────────────────────────────
+#Admin routes
 @app.get("/admin/users", response_model=list[UserResponse], tags=["Shop Owner"])
 def get_all_users(
     db: Session = Depends(get_db),
