@@ -36,7 +36,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# ── Proxy login — forwards to User Service ────────────────────
+#  Proxy login — forwards to User Service 
 @app.post("/login", tags=["Auth"], include_in_schema=False)
 async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
     async with httpx.AsyncClient() as client:
@@ -48,7 +48,7 @@ async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return response.json()
 
-# ── Helper: decode JWT → username and role ────────────────────
+#  Helper: decode JWT → username and role 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -66,7 +66,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Invalid or expired token"
         )
 
-# ── Helper: customers only ────────────────────────────────────
+#  Helper: customers only 
 def require_customer(current_user: dict = Depends(get_current_user)):
     if current_user["role"] != "customer":
         raise HTTPException(
@@ -75,7 +75,7 @@ def require_customer(current_user: dict = Depends(get_current_user)):
         )
     return current_user
 
-# ── Helper: validate internal service secret ─────────────────
+#  Helper: validate internal service secret 
 def verify_internal_secret(x_internal_secret: Optional[str] = Header(None)):
     if x_internal_secret != INTERNAL_SECRET:
         raise HTTPException(
@@ -83,12 +83,12 @@ def verify_internal_secret(x_internal_secret: Optional[str] = Header(None)):
             detail="Access denied. This is an internal route."
         )
 
-# ── Routes ────────────────────────────────────────────────────
+#  Routes 
 @app.get("/", tags=["Health"])
 def health_check():
     return {"service": "Notification Service", "status": "running", "port": 8005}
 
-# ── Internal route — called automatically by Payment Service ──
+#  Internal route — called automatically by Payment Service **
 @app.post(
     "/notifications/internal",
     response_model=NotificationResponse,
@@ -110,7 +110,7 @@ def create_notification(
     db.refresh(new_notification)
     return new_notification
 
-# ── Customer routes ───────────────────────────────────────────
+#  Customer routes 
 @app.get("/notifications/me", response_model=list[NotificationResponse], tags=["Notifications"])
 def get_my_notifications(
     db: Session = Depends(get_db),
