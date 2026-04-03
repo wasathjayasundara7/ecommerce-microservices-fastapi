@@ -32,7 +32,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# ── Proxy login ───────────────────────────────────────────────
+# Proxy login 
 @app.post("/login", tags=["Auth"], include_in_schema=False)
 async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
     async with httpx.AsyncClient() as client:
@@ -44,7 +44,7 @@ async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return response.json()
 
-# ── Helper: decode JWT → returns username and role ────────────
+# decode JWT → returns username and role 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -62,7 +62,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Invalid or expired token"
         )
 
-# ── Helper: customers only ────────────────────────────────────
+# customers only 
 def require_customer(current_user: dict = Depends(get_current_user)):
     if current_user["role"] != "customer":
         raise HTTPException(
@@ -71,7 +71,7 @@ def require_customer(current_user: dict = Depends(get_current_user)):
         )
     return current_user
 
-# ── Helper: fetch and validate product ───────────────────────
+# fetch and validate product 
 async def fetch_product(product_id: int):
     async with httpx.AsyncClient() as client:
         try:
@@ -93,7 +93,7 @@ async def fetch_product(product_id: int):
         raise HTTPException(status_code=400, detail="Product is no longer available")
     return product
 
-# ── Routes ────────────────────────────────────────────────────
+#  Routes 
 @app.get("/", tags=["Health"])
 def health_check():
     return {"service": "Order Service", "status": "running", "port": 8003}
@@ -137,7 +137,7 @@ def get_my_orders(
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_customer)
 ):
-    # Customer sees only their own orders — change 4
+    # Customer sees only their own orders 
     return db.query(models.OrderTable).filter(
         models.OrderTable.username == current_user["username"]
     ).all()
@@ -214,7 +214,7 @@ def cancel_order(
     db.refresh(order)
     return order
 
-# ── Internal route — called by Payment Service only ───────────
+# Internal route — called by Payment Service only
 @app.put("/orders/{order_id}/mark-paid", tags=["Orders"])
 def mark_order_paid(
     order_id: int,

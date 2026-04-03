@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-# ── SQLAlchemy table ──────────────────────────────────────────
+#  SQLAlchemy table 
 class OrderTable(Base):
     __tablename__ = "orders"
 
@@ -19,7 +19,7 @@ class OrderTable(Base):
     status       = Column(String, default="pending")
     created_at   = Column(DateTime(timezone=True), server_default=func.now())
 
-# ── Pydantic schemas ──────────────────────────────────────────
+# Pydantic schemas 
 class OrderCreate(BaseModel):
     product_id: int
     quantity: int
