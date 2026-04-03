@@ -3,7 +3,7 @@ from .database import Base
 from pydantic import BaseModel
 from typing import Optional
 
-# ── SQLAlchemy table ──────────────────────────────────────────
+#SQLAlchemy table
 class UserTable(Base):
     __tablename__ = "users"
 
@@ -14,7 +14,7 @@ class UserTable(Base):
     role            = Column(String, default="customer")
     is_active       = Column(Boolean, default=True)
 
-# ── Pydantic schemas ──────────────────────────────────────────
+#Pydantic schemas
 class UserCreate(BaseModel):
     username: str
     email: str

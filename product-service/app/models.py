@@ -3,7 +3,7 @@ from .database import Base
 from pydantic import BaseModel
 from typing import Optional
 
-# ── SQLAlchemy table ──────────────────────────────────────────
+#SQLAlchemy table
 class ProductTable(Base):
     __tablename__ = "products"
 
@@ -15,7 +15,7 @@ class ProductTable(Base):
     category    = Column(String, nullable=True)
     is_active   = Column(Boolean, default=True)
 
-# ── Pydantic schemas ──────────────────────────────────────────
+#Pydantic schemas
 class ProductCreate(BaseModel):
     name: str
     description: Optional[str] = None

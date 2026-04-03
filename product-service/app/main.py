@@ -8,7 +8,7 @@ from .models import ProductCreate, ProductUpdate, ProductResponse
 from jose import JWTError, jwt
 import httpx
 
-# Create all DB tables on startup
+#Create all DB tables on startup
 models.ProductTable.metadata.create_all(bind=engine)
 
 SECRET_KEY = "ecommerce-super-secret-key-2026"
@@ -32,7 +32,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# ── Proxy login — forwards to User Service ────────────────────
+#Proxy login - forwards to User Service
 @app.post("/login", tags=["Auth"], include_in_schema=False)
 async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
     async with httpx.AsyncClient() as client:
@@ -47,7 +47,7 @@ async def login_proxy(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return response.json()
 
-# ── Helper: validate JWT and extract username + role ──────────
+#Helper: validate JWT and extract username + role
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -65,7 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Invalid or expired token"
         )
 
-# ── Helper: admin only ────────────────────────────────────────
+#Helper: admin only
 def require_admin(current_user: dict = Depends(get_current_user)):
     if current_user["role"] != "admin":
         raise HTTPException(
@@ -74,7 +74,7 @@ def require_admin(current_user: dict = Depends(get_current_user)):
         )
     return current_user
 
-# ── Routes ────────────────────────────────────────────────────
+#Routes
 @app.get("/", tags=["Health"])
 def health_check():
     return {"service": "Product Service", "status": "running", "port": 8002}

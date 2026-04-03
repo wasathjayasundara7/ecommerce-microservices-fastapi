@@ -18,7 +18,7 @@ SERVICES = {
     "notifications": "http://localhost:8005",
 }
 
-# ── Pydantic models for request bodies ───────────────────────
+#Pydantic models for request bodies
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -51,7 +51,7 @@ class PaymentCreate(BaseModel):
     order_id: int
     payment_method: str
 
-# ── App setup ─────────────────────────────────────────────────
+#App setup
 app = FastAPI(
     title="API Gateway of the E-Commerce Microservices",
     description="""
@@ -83,7 +83,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
-# ── JWT helpers ───────────────────────────────────────────────
+#JWT helpers
 def validate_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -108,7 +108,7 @@ def require_customer(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Access denied. Only customers can perform this action.")
     return current_user
 
-# ── Core proxy ────────────────────────────────────────────────
+#Core proxy
 async def proxy_with_body(url: str, method: str, token: Optional[str], body: dict):
     headers = {"Content-Type": "application/json"}
     if token:
@@ -147,16 +147,12 @@ async def proxy_no_body(request: Request, url: str):
     except Exception:
         return JSONResponse(content={"detail": resp.text}, status_code=resp.status_code)
 
-# ══════════════════════════════════════════════════════════════
-# HEALTH
-# ══════════════════════════════════════════════════════════════
+#HEALTH
 @app.get("/", tags=["Health"])
 def health_check():
     return {"service": "API Gateway", "status": "running", "port": 8000}
 
-# ══════════════════════════════════════════════════════════════
-# USER SERVICE — Customer
-# ══════════════════════════════════════════════════════════════
+#USER SERVICE - Customer
 @app.post("/users/register", tags=["Customer"], summary="Register Customer")
 async def register_customer(body: UserCreate):
     return await proxy_with_body(
@@ -196,9 +192,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 #         f"{SERVICES['users']}/users/me", "PUT", token, body.model_dump(exclude_unset=True)
 #     )
 
-# ══════════════════════════════════════════════════════════════
-# USER SERVICE — Admin
-# ══════════════════════════════════════════════════════════════
+#USER SERVICE - Admin
 @app.post("/users/register/admin", tags=["Shop Owner"], summary="Register Admin")
 async def register_admin(body: UserCreate, admin_key: str):
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -246,9 +240,7 @@ async def delete_user(
 ):
     return await proxy_no_body(request, f"{SERVICES['users']}/admin/users/{user_id}")
 
-# ══════════════════════════════════════════════════════════════
-# PRODUCT SERVICE — Public
-# ══════════════════════════════════════════════════════════════
+#PRODUCT SERVICE - Public
 @app.get("/products/products", tags=["Product (Accessible to All)"], summary="Get All Products")
 async def get_all_products(request: Request):
     return await proxy_no_body(request, f"{SERVICES['products']}/products")
@@ -257,9 +249,7 @@ async def get_all_products(request: Request):
 async def get_product(product_id: int, request: Request):
     return await proxy_no_body(request, f"{SERVICES['products']}/products/{product_id}")
 
-# ══════════════════════════════════════════════════════════════
-# PRODUCT SERVICE — Admin
-# ══════════════════════════════════════════════════════════════
+#PRODUCT SERVICE - Admin
 @app.post("/products/products", tags=["Product (Shop Owner Only)"], summary="Create Product")
 async def create_product(
     body: ProductCreate,
@@ -289,9 +279,7 @@ async def delete_product(
 ):
     return await proxy_no_body(request, f"{SERVICES['products']}/products/{product_id}")
 
-# ══════════════════════════════════════════════════════════════
-# ORDER SERVICE — Customer only
-# ══════════════════════════════════════════════════════════════
+#ORDER SERVICE - Customer only
 @app.post("/orders/orders", tags=["Orders (Customer Only)"], summary="Place Order")
 async def place_order(
     body: OrderCreate,
@@ -325,9 +313,7 @@ async def cancel_order(
 ):
     return await proxy_no_body(request, f"{SERVICES['orders']}/orders/{order_id}/cancel")
 
-# ══════════════════════════════════════════════════════════════
-# PAYMENT SERVICE — Customer only
-# ══════════════════════════════════════════════════════════════
+#PAYMENT SERVICE - Customer only
 @app.post("/payments/payments", tags=["Payments (Customer Only)"], summary="Process Payment")
 async def process_payment(
     body: PaymentCreate,
@@ -353,9 +339,7 @@ async def get_payment(
 ):
     return await proxy_no_body(request, f"{SERVICES['payments']}/payments/{payment_id}")
 
-# ══════════════════════════════════════════════════════════════
-# NOTIFICATION SERVICE — Customer only
-# ══════════════════════════════════════════════════════════════
+#NOTIFICATION SERVICE - Customer only
 @app.get("/notifications/notifications/me", tags=["Notifications (Customer Only)"],
          summary="Get My Notifications")
 async def get_my_notifications(
