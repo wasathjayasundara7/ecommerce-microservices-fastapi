@@ -214,6 +214,79 @@ def cancel_order(
     db.refresh(order)
     return order
 
+@app.put("/orders/{order_id}", response_model=OrderResponse, tags=["Orders"])
+async def update_order_quantity(
+    order_id: int,
+    updated_order: OrderCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_customer)
+):
+    # Fetch order
+    order = db.query(models.OrderTable).filter(
+        models.OrderTable.id == order_id,
+        models.OrderTable.username == current_user["username"]
+    ).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Only pending orders can be updated
+    if order.status != "pending":
+        raise HTTPException(
+            status_code=400,
+            detail="Only pending orders can be updated"
+        )
+
+    if updated_order.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be at least 1")
+
+    # Validate product again
+    product = await fetch_product(order.product_id)
+
+    if product["stock"] < updated_order.quantity:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient stock. Available: {product['stock']}"
+        )
+
+    # Update values
+    order.quantity = updated_order.quantity
+    order.total_price = round(order.unit_price * updated_order.quantity, 2)
+
+    db.commit()
+    db.refresh(order)
+
+    return order
+
+@app.delete("/orders/{order_id}", tags=["Orders"])
+def delete_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_customer)
+):
+    order = db.query(models.OrderTable).filter(
+        models.OrderTable.id == order_id,
+        models.OrderTable.username == current_user["username"]
+    ).first()
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="Order not found or does not belong to you"
+        )
+
+    # Restrict deletion
+    if order.status in ["paid", "delivered"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete a paid or delivered order"
+        )
+
+    db.delete(order)
+    db.commit()
+
+    return {"message": f"Order {order_id} deleted successfully"}
+
 # Internal route — called by Payment Service only
 @app.put("/orders/{order_id}/mark-paid", tags=["Orders"])
 def mark_order_paid(
