@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-# ── SQLAlchemy table ──────────────────────────────────────────
+# SQLAlchemy table
 class PaymentTable(Base):
     __tablename__ = "payments"
 
@@ -17,7 +17,7 @@ class PaymentTable(Base):
     status         = Column(String, default="completed")
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 
-# ── Pydantic schemas ──────────────────────────────────────────
+# Pydantic schemas
 class PaymentCreate(BaseModel):
     order_id: int
     payment_method: str

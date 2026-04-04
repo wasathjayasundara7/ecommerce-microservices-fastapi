@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-# ── SQLAlchemy table ──────────────────────────────────────────
+#  SQLAlchemy table **
 class NotificationTable(Base):
     __tablename__ = "notifications"
 
@@ -16,7 +16,7 @@ class NotificationTable(Base):
     is_read    = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-# ── Pydantic schemas ──────────────────────────────────────────
+#  Pydantic schemas 
 
 # Used internally by Payment Service only — not exposed to users
 class NotificationInternal(BaseModel):
