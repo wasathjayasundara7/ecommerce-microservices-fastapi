@@ -313,6 +313,30 @@ async def cancel_order(
 ):
     return await proxy_no_body(request, f"{SERVICES['orders']}/orders/{order_id}/cancel")
 
+@app.put("/orders/orders/{order_id}", tags=["Orders (Customer Only)"], summary="Update Order Quantity")
+async def update_order(
+    order_id: int,
+    body: OrderCreate,
+    current_user: dict = Depends(require_customer),
+    token: str = Depends(oauth2_scheme)
+):
+    return await proxy_with_body(
+        f"{SERVICES['orders']}/orders/{order_id}",
+        "PUT",
+        token,
+        body.model_dump()
+    )
+
+@app.delete("/orders/orders/{order_id}", tags=["Orders (Customer Only)"], summary="Delete Order")
+async def delete_order(
+    order_id: int,
+    request: Request,
+    current_user: dict = Depends(require_customer)
+):
+    return await proxy_no_body(
+        request,
+        f"{SERVICES['orders']}/orders/{order_id}"
+    )
 #PAYMENT SERVICE - Customer only
 @app.post("/payments/payments", tags=["Payments (Customer Only)"], summary="Process Payment")
 async def process_payment(
